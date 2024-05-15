@@ -7,7 +7,7 @@ from pprint import pprint
 import dotenv
 from pathlib import Path
 from fastapi import FastAPI, File, UploadFile
-from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores.chroma import Chroma
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from pydantic import BaseModel, field_validator
 from file_server_utils import MinioFunctions
@@ -155,6 +155,8 @@ async def list_collections():
 @app.get("/list_documents")
 async def list_documents(filename: str):
     collection_name = filename.replace(" ", "")
+    ans = vector_db_outer.get()
+    """
     try:
         # Use vector_db_outer to access the specified collection
         retriever = vector_db_outer.as_retriever(collection_name=collection_name)
@@ -166,11 +168,13 @@ async def list_documents(filename: str):
     print("Documents in collection:")
     for i, doc in enumerate(documents_list):
         print(f"Document {i + 1}: {doc}")
-
+    
     return {
         "message": f"Retrieved {len(documents_list)} documents from collection '{collection_name}'.",
         "documents": documents_list
     }
+    """
+    return ans
 
 @app.post("/reset")
 async def reset_db():
@@ -180,7 +184,8 @@ async def reset_db():
 @app.post("/ocr")
 async def ocr_to_vector_db(filename: str):
     if minioFunctions.check_file_uploaded(filename):
-        file_path = OCR_SIM_DIRECTORY / change_extension_to_json(filename)
+        # file_path = OCR_SIM_DIRECTORY / change_extension_to_json(filename)
+        file_path = Path(__file__).resolve().parent / "OCR_data" / change_extension_to_json(filename)
         print(file_path)
         if not file_path.is_file():
             # TODO: Should this give an HTTP code back?
@@ -204,10 +209,17 @@ async def ocr_to_vector_db(filename: str):
 
         documents = doc_creator.create_documents(texts=documents_filtered)
 
+        # Ensure the collection exists or create it if it does not
+
+        chroma_client.get_or_create_collection(collection_name)
+
+        print("collection name is: " + collection_name)
+
         vector_db_outer.add_documents(
             documents=documents,
             ids=ids,
-            collection_name=collection_name
+            collection_name=collection_name,
+            persist_directory=str(CHROMA_DIR),
         )
         vector_db_outer.persist()
 

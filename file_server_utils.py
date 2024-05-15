@@ -9,7 +9,7 @@ class MinioFunctions:
     def __init__(self, bucket_name):
         # Initialize a Minio client
         self.minioClient = Minio(
-            "festive-robinson:9000",
+            "localhost:9000",
             access_key="minioadmin",
             secret_key="minioadmin",
             secure=False
