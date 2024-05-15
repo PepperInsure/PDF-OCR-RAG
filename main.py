@@ -1,26 +1,18 @@
 # main.py
+from langchain_utils import setup_chain
+
 import json
 import os
-import shutil
-from pprint import pprint
 
 import dotenv
 from pathlib import Path
 from fastapi import FastAPI, File, UploadFile
-from langchain_community.vectorstores.chroma import Chroma
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_openai import OpenAIEmbeddings
 from pydantic import BaseModel, field_validator
 from file_server_utils import MinioFunctions
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.prompts import (
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-    PromptTemplate,
-    SystemMessagePromptTemplate,
-)
-from langchain_core.output_parsers import StrOutputParser
-from chromadb.utils import embedding_functions
 
+from chromadb.utils import embedding_functions
 import chromadb
 
 
@@ -54,13 +46,13 @@ llm_embedding = OpenAIEmbeddings()
 app = FastAPI()
 # Minio
 BUCKET = "yourbucket"
-#OCR_SIM_DIRECTORY = Path(__file__).resolve().parent / "OCR_data"
+# OCR_SIM_DIRECTORY = Path(__file__).resolve().parent / "OCR_data"
 OCR_SIM_DIRECTORY = Path("/app/OCR_data")
 minioFunctions = MinioFunctions(BUCKET)
 
 # chromaDB
-#CHROMA_DIR = "./chroma_db"
-#chroma_client = chromadb.PersistentClient(path=CHROMA_DIR)
+# CHROMA_DIR = "./chroma_db"
+# chroma_client = chromadb.PersistentClient(path=CHROMA_DIR)
 CHROMA_DIR = Path(os.getenv("CHROMA_DIR", "/app/chroma_db"))
 print(f"CHROMA_DIR: {CHROMA_DIR}")
 
@@ -78,40 +70,7 @@ os.makedirs(OCR_SIM_DIRECTORY, exist_ok=True)
 # langchain
 doc_creator = CharacterTextSplitter(separator='\n')
 
-review_template_str = """Your task is to use the extracted content from OCR data to answer questions about a document.
-Use the following context to answer the questions. Be as detailed as possible, but do not make up any information
-that is not from the context. If you don't know an answer, say you don't know. Give one answer in english and one in japanese.
-{context}
-"""
-
-review_system_prompt = SystemMessagePromptTemplate(
-    prompt=PromptTemplate(
-        input_variables=["context"], template=review_template_str
-    )
-)
-
-review_human_prompt = HumanMessagePromptTemplate(
-    prompt=PromptTemplate(input_variables=["question"], template="{question}")
-)
-
-messages = [review_system_prompt, review_human_prompt]
-
-review_prompt_template = ChatPromptTemplate(
-    input_variables=["context", "question"], messages=messages
-)
-
-# use the new gpt4-o said to be better for multiple languages
-chat_model = ChatOpenAI(model="gpt-4-turbo", temperature=0)
-
-output_parser = StrOutputParser()
-
-print(f"Chroma vector store initialized with directory: {CHROMA_DIR}")
-
-review_chain = (
-        review_prompt_template
-        | chat_model
-        | output_parser
-)
+review_chain = setup_chain()
 
 
 @app.get("/")
@@ -140,6 +99,7 @@ async def list_collections():
     except Exception as e:
         return {"message": f"An error occurred: {str(e)}"}
 
+
 @app.get("/list_documents")
 async def list_documents(filename: str):
     collection_name = filename.replace(" ", "")
@@ -147,10 +107,12 @@ async def list_documents(filename: str):
     documents = collection.get()
     return documents
 
+
 @app.post("/reset")
 async def reset_db():
     chroma_client.reset()
     return {"message": "ChromaDB has been reset, all collections and documents have been removed."}
+
 
 @app.post("/ocr")
 async def ocr_to_vector_db(filename: str):
@@ -189,7 +151,6 @@ async def ocr_to_vector_db(filename: str):
             metadatas=metadatas,
         )
 
-
         return {"message": "Imported Simulated OCR data to Vector DB."}
     else:
         return {"message": "File not found"}
@@ -209,16 +170,6 @@ async def query_rag(filename: str, query: str):
         n_results=5,
     )
     print(context_docs)
-    """
-
-    context = "\n".join(context)
-
-    # Ensure both context and query are strings
-    if not isinstance(context, str):
-        context = str(context)
-    if not isinstance(query, str):
-        query = str(query)
-    """
 
     # Prepare the inputs for the review chain
     inputs = {
@@ -232,7 +183,3 @@ async def query_rag(filename: str, query: str):
         "message": "Query processed successfully.",
         "response": response
     }
-
-
-
-
