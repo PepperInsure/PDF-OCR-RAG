@@ -30,3 +30,5 @@ One collection for each doc.
 
 Considerations:
 GPT-4o is said to be better at non-english languages.
+Should I use fixed size chunking or newline based?
+Japanese specific preprocessing, embedding, vectorsearch, or langdetect if needed.

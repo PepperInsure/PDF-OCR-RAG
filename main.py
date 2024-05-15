@@ -71,11 +71,6 @@ embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(
     model_name="multi-qa-MiniLM-L6-cos-v1"
 )
 
-vector_db_outer = Chroma(
-    persist_directory=str(CHROMA_DIR),
-    embedding_function=llm_embedding,
-)
-
 # Ensure directories exist
 os.makedirs(CHROMA_DIR, exist_ok=True)
 os.makedirs(OCR_SIM_DIRECTORY, exist_ok=True)
@@ -204,33 +199,17 @@ async def ocr_to_vector_db(filename: str):
 async def query_rag(filename: str, query: str):
     collection_name = filename.replace(" ", "")
     try:
-        # chroma_collection = db.get_collection(collection_name)
-        chroma_collection = vector_db_outer.get(collection_name)
+        chroma_collection = chroma_client.get_collection(collection_name)
         print(chroma_collection)
-        # print(db.list_collections())
 
     except ValueError:
         return {"message": "File has not been put into the vector database."}
-
-    retriever = vector_db_outer.as_retriever(k=5, collection_name=collection_name)
-    context_documents = retriever.get_relevant_documents(query)
-
-    # Debug: Print the retrieved document fragments with more details
-    for i, doc in enumerate(context_documents):
-        print(f"Retrieved fragment {i + 1}:")
-        print(doc.page_content)
-        print("=" * 50)
-
-    max_tokens = 5000
-    current_tokens = 0
-    context = []
-
-    for doc in context_documents:
-        tokens = len(doc.page_content.split())
-        if current_tokens + tokens > max_tokens:
-            break
-        context.append(doc.page_content)
-        current_tokens += tokens
+    context_docs = chroma_collection.query(
+        query_texts=query,
+        n_results=5,
+    )
+    print(context_docs)
+    """
 
     context = "\n".join(context)
 
@@ -239,15 +218,13 @@ async def query_rag(filename: str, query: str):
         context = str(context)
     if not isinstance(query, str):
         query = str(query)
+    """
 
     # Prepare the inputs for the review chain
     inputs = {
-        "context": context,
+        "context": context_docs,
         "question": query
     }
-
-    print(f"Context: {context}")
-    print(f"Question: {query}")
 
     response = review_chain.invoke(inputs)
 
@@ -255,5 +232,7 @@ async def query_rag(filename: str, query: str):
         "message": "Query processed successfully.",
         "response": response
     }
+
+
 
 
