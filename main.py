@@ -19,6 +19,7 @@ from langchain.prompts import (
     SystemMessagePromptTemplate,
 )
 from langchain_core.output_parsers import StrOutputParser
+from chromadb.utils import embedding_functions
 
 import chromadb
 
@@ -65,6 +66,10 @@ print(f"CHROMA_DIR: {CHROMA_DIR}")
 
 chroma_client = chromadb.PersistentClient(path=str(CHROMA_DIR))
 print(f"ChromaDB client initialized with directory: {CHROMA_DIR}")
+
+embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(
+    model_name="multi-qa-MiniLM-L6-cos-v1"
+)
 
 vector_db_outer = Chroma(
     persist_directory=str(CHROMA_DIR),
@@ -135,50 +140,21 @@ async def create_upload_file(file: UploadFile = File(...)):
 @app.get("/list_collections")
 async def list_collections():
     try:
-        collections = vector_db_outer._client.list_collections()
-        all_collections = {}
-
-        for collection in collections:
-            collection_name = collection.name
-            retriever = vector_db_outer.as_retriever(collection_name=collection_name)
-            context_documents = retriever.get_relevant_documents(query="")
-            all_collections[collection_name] = [doc.page_content for doc in context_documents]
-
-        return {
-            "message": "Retrieved documents from all collections.",
-            "collections": all_collections
-        }
-
+        collections = chroma_client.list_collections()
+        return collections
     except Exception as e:
         return {"message": f"An error occurred: {str(e)}"}
 
 @app.get("/list_documents")
 async def list_documents(filename: str):
     collection_name = filename.replace(" ", "")
-    ans = vector_db_outer.get()
-    """
-    try:
-        # Use vector_db_outer to access the specified collection
-        retriever = vector_db_outer.as_retriever(collection_name=collection_name)
-        context_documents = retriever.get_relevant_documents(query="")
-    except ValueError:
-        return {"message": f"Collection '{collection_name}' not found in the vector database."}
-
-    documents_list = [doc.page_content for doc in context_documents]
-    print("Documents in collection:")
-    for i, doc in enumerate(documents_list):
-        print(f"Document {i + 1}: {doc}")
-    
-    return {
-        "message": f"Retrieved {len(documents_list)} documents from collection '{collection_name}'.",
-        "documents": documents_list
-    }
-    """
-    return ans
+    collection = chroma_client.get_collection(collection_name)
+    documents = collection.get()
+    return documents
 
 @app.post("/reset")
 async def reset_db():
-    vector_db_outer._client.reset()
+    chroma_client.reset()
     return {"message": "ChromaDB has been reset, all collections and documents have been removed."}
 
 @app.post("/ocr")
@@ -197,46 +173,29 @@ async def ocr_to_vector_db(filename: str):
             data = json.load(file)
 
         document_lines = data['analyzeResult']['content'].split('\n')  # This splits the document at each newline
-        # character
 
         # Filter out any empty lines if necessary
         documents_filtered = [line.strip() for line in document_lines if line.strip()]
 
         ids = [f"{collection_name}_{index}" for index, _ in enumerate(documents_filtered)]
+        metadatas = [{"filename": filename} for index, _ in enumerate(documents_filtered)]
 
         if not documents_filtered:
             return {"message": "No documents to index."}
 
-        documents = doc_creator.create_documents(texts=documents_filtered)
-
-        # Ensure the collection exists or create it if it does not
-
-        chroma_client.get_or_create_collection(collection_name)
-
-        print("collection name is: " + collection_name)
-
-        vector_db_outer.add_documents(
-            documents=documents,
-            ids=ids,
-            collection_name=collection_name,
-            persist_directory=str(CHROMA_DIR),
+        collection = chroma_client.create_collection(
+            name=collection_name,
+            embedding_function=embedding_func,
         )
-        vector_db_outer.persist()
 
-        """vector_db_outer.add_documents(
-            documents=documents,
-            embedding=llm_embedding,
-            collection_name=collection_name,
-            persist_directory=str(CHROMA_DIR),
-            ids=ids
-        )"""
+        collection.add(
+            ids=ids,
+            documents=documents_filtered,
+            metadatas=metadatas,
+        )
 
-        retriever = vector_db_outer.as_retriever(collection_name=collection_name)
-        context_documents = retriever.get_relevant_documents(query="")
-        print(f"Indexed {len(context_documents)} documents in collection '{collection_name}'")
 
-        return {
-            "message": f"Imported Simulated OCR data to Vector DB. Indexed {len(context_documents)} documents in collection '{collection_name}'."}
+        return {"message": "Imported Simulated OCR data to Vector DB."}
     else:
         return {"message": "File not found"}
 
