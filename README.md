@@ -3,19 +3,17 @@ Alter defaults for minio in code and the minio deployment.
 Change bucket name if needed.
 Remove the --reload flag from the Dockerfile.
 
-To start the main server without docker:
-uvicorn main:app --reload
-Go to file_server_utils and replace festive-robinson with localhost
-Replace the line below with the following:
-    #file_path = OCR_SIM_DIRECTORY / change_extension_to_json(filename)
-    file_path = Path(__file__).resolve().parent / "OCR_data" / change_extension_to_json(filename)
+Make an .env file with these two lines below:
+OPENAI_API_KEY=[your-open-ai-api-key-here]
+ALLOW_RESET=TRUE
 
-For both minio and main docker:
-Use docker and run:
+To start the main server without docker but load minio in docker:
+docker network create mynetwork
 docker run --network my-network --name festive-robinson -d -p 9000:9000 -p 9001:9001 minio/minio server /data --console-address ":9001"
+uvicorn main:app --reload
 
-docker build -t my-fastapi-app .
-docker run --network my-network -p 8000:80 --env-file .\.env -v ${PWD}:/app my-fastapi-app
+For both minio and main docker together:
+docker-compose up --build
 
 
 Setup before dockerization:
@@ -24,6 +22,8 @@ pip install minio
 python -m pip install chromadb
 python -m pip install python-dotenv
 python -m pip install langchain==0.1.0 openai==1.7.2 langchain-openai==0.0.2 langchain-community==0.0.12 langchainhub==0.1.14
+pip install pytest
+pip install pytest-asyncio
 
 One collection for each doc.
 
@@ -32,3 +32,6 @@ Considerations:
 GPT-4o is said to be better at non-english languages.
 Should I use fixed size chunking or newline based?
 Japanese specific preprocessing, embedding, vectorsearch, or langdetect if needed.
+
+Is there a way to change the directory to work on both docker and local?
+Make the tests work!

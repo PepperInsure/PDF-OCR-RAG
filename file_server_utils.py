@@ -1,7 +1,13 @@
+import os
+
 from minio import Minio
 from minio.error import S3Error
 import io
 
+# Load environment variables
+minio_endpoint = os.getenv('MINIO_ENDPOINT', 'localhost:9000')
+minio_access_key = os.getenv('MINIO_ACCESS_KEY', 'minioadmin')
+minio_secret_key = os.getenv('MINIO_SECRET_KEY', 'minioadmin')
 
 class MinioFunctions:
     minioClient = None
@@ -9,9 +15,9 @@ class MinioFunctions:
     def __init__(self, bucket_name):
         # Initialize a Minio client
         self.minioClient = Minio(
-            "localhost:9000",
-            access_key="minioadmin",
-            secret_key="minioadmin",
+            minio_endpoint,
+            access_key=minio_access_key,
+            secret_key=minio_secret_key,
             secure=False
         )
         self.bucket_name = bucket_name
