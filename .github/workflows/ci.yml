@@ -15,10 +15,10 @@ jobs:
     services:
       minio:
         image: minio/minio
-        options: --name minio-container --console-address ":9001"
         ports:
           - 9000:9000
           - 9001:9001
+        options: --console-address ":9001"
         env:
           MINIO_ROOT_USER: minioadmin
           MINIO_ROOT_PASSWORD: minioadmin
