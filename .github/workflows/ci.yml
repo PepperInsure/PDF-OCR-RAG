@@ -49,11 +49,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Start Docker containers
+        run: docker-compose up -d
+
       - name: Lint with flake8
-        run: flake8 .
+        run: docker-compose run app flake8 .
 
       - name: Run tests
-        run: pytest
+        run: docker-compose run app pytest
 
       - name: Login to Docker Hub
         uses: docker/login-action@v1
@@ -63,7 +66,6 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker-compose up --build -d
           docker build -t my-app:latest .
           docker tag my-app:latest "${{ secrets.DOCKER_USERNAME }}/my-app:latest"
           docker push "${{ secrets.DOCKER_USERNAME }}/my-app:latest"

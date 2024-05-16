@@ -1,7 +1,36 @@
-__pycache__
+# Ignore Python virtual environments
+venv/
+
+# Ignore all files in OCR_data, but not the directory itself
+OCR_data/*
+!OCR_data/
+
+# Ignore all files in chroma_db, but not the directory itself
+chroma_db/*
+!chroma_db/
+
+# Ignore all files in uploads, but not the directory itself
+uploads/*
+!uploads/
+
+# Ignore all files in chroma_db, but not the directory itself
+chroma_db/*
+!chroma_db/
+
+# Ignore common temporary files and directories
 *.pyc
+*.pyo
+*.pyd
+__pycache__
+*.swp
+*.swo
+*~
+**/*.md
+.DS_Store
+*.log
+*.tmp
+*.bak
+
+# Ignore files related to version control
 .git
 .gitignore
-chroma.sqlite3
-**/*.md
-venv
