@@ -18,11 +18,12 @@ jobs:
         ports:
           - 9000:9000
           - 9001:9001
+        options: --name minio-container --console-address ":9001"
         env:
           MINIO_ROOT_USER: minioadmin
           MINIO_ROOT_PASSWORD: minioadmin
         volumes:
-          - minio-data:/data
+          - /tmp/minio-data:/data  # Define the volume inside the service
 
     env:
       CHROMA_DIR: /app/chroma_db
@@ -36,9 +37,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -48,9 +46,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install pytest-asyncio
 
       - name: Lint with flake8
         run: flake8 .
+
+      - name: Wait for Minio to be ready
+        run: sleep 20  # Adjust the sleep time as necessary
 
       - name: Run tests
         run: pytest
