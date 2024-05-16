@@ -1,0 +1,388 @@
+{
+	"info": {
+		"_postman_id": "6b1972e8-eb61-4963-a1c4-87bc7180d944",
+		"name": "New Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "34829357"
+	},
+	"item": [
+		{
+			"name": "list collections",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{server}}/list_collections",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"list_collections"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "list documents",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{server}}/list_documents?filename=docA.pdf",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"list_documents"
+					],
+					"query": [
+						{
+							"key": "filename",
+							"value": "A Scandal in Bohemia 1.pdf",
+							"disabled": true
+						},
+						{
+							"key": "filename",
+							"value": "docA.pdf"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "upload",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "multipart/form-data",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "files",
+							"type": "file",
+							"src": "/D:/code/OCRSimulationLangchain/uploads/A Scandal in Bohemia 1.pdf"
+						},
+						{
+							"key": "files",
+							"type": "file",
+							"src": "/D:/code/OCRSimulationLangchain/uploads/this_shouldn't_upload.txt"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{server}}/upload",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"upload"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "reset",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{server}}/reset",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"reset"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ocr",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"filename\": \"A Scandal in Bohemia 1.pdf\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/ocr?filename=A Scandal in Bohemia 1.pdf",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"ocr"
+					],
+					"query": [
+						{
+							"key": "filename",
+							"value": "A Scandal in Bohemia 1.pdf"
+						},
+						{
+							"key": "filename",
+							"value": "docA.pdf",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ocr japanese",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"filename\": \"docA.pdf\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/ocr",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"ocr"
+					],
+					"query": [
+						{
+							"key": "filename",
+							"value": "A Scandal in Bohemia 1.pdf",
+							"disabled": true
+						},
+						{
+							"key": "filename",
+							"value": "docA.pdf",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "extract",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"filename\": \"A Scandal in Bohemia 1.pdf\",\r\n  \"query\": \"Who is sherlock holmes?\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/extract",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"extract"
+					],
+					"query": [
+						{
+							"key": "filename",
+							"value": "A Scandal in Bohemia 1.pdf",
+							"disabled": true
+						},
+						{
+							"key": "query",
+							"value": "What are the rules for fire-resistant structures? Translate to english.",
+							"disabled": true
+						},
+						{
+							"key": "filename",
+							"value": "docA.pdf",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "extract japanese query",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"filename\": \"docA.pdf\",\r\n  \"query\": \"防火に関する規定はありますか？\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/extract",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"extract"
+					],
+					"query": [
+						{
+							"key": "filename",
+							"value": "A Scandal in Bohemia 1.pdf",
+							"disabled": true
+						},
+						{
+							"key": "query",
+							"value": "What are the rules for fire-resistant structures? Translate to english.",
+							"disabled": true
+						},
+						{
+							"key": "filename",
+							"value": "docA.pdf",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "extract japanese, english query",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"filename\": \"docA.pdf\",\r\n  \"query\": \"What are the rules for fire-resistant structures?\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/extract",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"extract"
+					],
+					"query": [
+						{
+							"key": "filename",
+							"value": "A Scandal in Bohemia 1.pdf",
+							"disabled": true
+						},
+						{
+							"key": "query",
+							"value": "What are the rules for fire-resistant structures? Translate to english.",
+							"disabled": true
+						},
+						{
+							"key": "filename",
+							"value": "docA.pdf",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "extract not in doc",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"filename\": \"A Scandal in Bohemia 1.pdf\",\r\n  \"query\": \"What are the rules for fire-resistant structures?\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{server}}/extract",
+					"host": [
+						"{{server}}"
+					],
+					"path": [
+						"extract"
+					],
+					"query": [
+						{
+							"key": "filename",
+							"value": "A Scandal in Bohemia 1.pdf",
+							"disabled": true
+						},
+						{
+							"key": "query",
+							"value": "What are the rules for fire-resistant structures? Translate to english.",
+							"disabled": true
+						},
+						{
+							"key": "filename",
+							"value": "docA.pdf",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "server",
+			"value": "http://127.0.0.1:8000"
+		}
+	]
+}

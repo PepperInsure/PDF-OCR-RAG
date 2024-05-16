@@ -142,9 +142,6 @@ async def test_ocr_endpoint(mock_ocr_data, mock_minio_functions, mock_minio_func
             assert response.status_code == 200
             assert response.json() == {"message": "Imported Simulated OCR data to Vector DB."}
 
-            # Print the actual calls for debugging
-            print(mock_file.call_args_list)
-
             # Check if the file was opened correctly by looking at all calls
             mock_file.assert_any_call(file_path, 'r', encoding='utf8')
 
