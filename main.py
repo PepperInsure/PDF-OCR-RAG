@@ -1,4 +1,6 @@
 # main.py
+from typing import List
+
 from langchain_utils import setup_chain
 import json
 import os
@@ -110,14 +112,20 @@ async def root():
 
 
 @app.post("/upload")
-async def create_upload_file(file: UploadFile = File(...)):
-    try:
-        FileUpload(filename=file.filename)
-        return await minioFunctions.upload_file(file)
-    except ValueError as ve:
-        raise HTTPException(status_code=400, detail=str(ve))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+async def create_upload_file(files: List[UploadFile] = File(...)):
+    print(files)
+    responses = []
+    for file in files:
+        try:
+            FileUpload(filename=file.filename)
+            response = await minioFunctions.upload_file(file)
+            responses.append({"filename": file.filename, "status": "success", "response": response})
+        except ValueError as ve:
+            responses.append({"filename": file.filename, "status": "error", "detail": str(ve)})
+        except Exception as e:
+            responses.append({"filename": file.filename, "status": "error", "detail": str(e)})
+
+    return responses
 
 
 @app.get("/list_collections")

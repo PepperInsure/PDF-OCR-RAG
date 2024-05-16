@@ -3,17 +3,21 @@ Alter defaults for minio in code and the minio deployment.
 Change bucket name if needed.
 Remove the --reload flag from the Dockerfile.
 
-Make an .env file with these two lines below:
+Make an .env file with these two lines below in the root directory:
 OPENAI_API_KEY=[your-open-ai-api-key-here]
 ALLOW_RESET=TRUE
+
+Make sure docker is running.
+
+To run both minio and main docker together:
+docker-compose up --build
 
 To start the main server without docker but load minio in docker:
 docker network create mynetwork
 docker run --network my-network --name festive-robinson -d -p 9000:9000 -p 9001:9001 minio/minio server /data --console-address ":9001"
 uvicorn main:app --reload
 
-For both minio and main docker together:
-docker-compose up --build
+
 
 
 Setup before dockerization:
@@ -33,5 +37,4 @@ GPT-4o is said to be better at non-english languages.
 Should I use fixed size chunking or newline based?
 Japanese specific preprocessing, embedding, vectorsearch, or langdetect if needed.
 
-Is there a way to change the directory to work on both docker and local?
 Make the tests work!

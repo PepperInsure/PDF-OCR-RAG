@@ -101,9 +101,18 @@ async def test_create_collection(mock_ocr_data, mock_chroma_client_create):
 
 def test_upload_endpoint(mock_minio_functions):
     with patch('main.minioFunctions', mock_minio_functions):
-        response = client.post("/upload", files={"file": ("example.pdf", b"file content here")})
+        files = [
+            ('files', ('example1.pdf', b'file content here', 'application/pdf')),
+            ('files', ('example2.png', b'file content here', 'image/png'))
+        ]
+        response = client.post("/upload", files=files)
         assert response.status_code == 200
-        assert "message" in response.json()
+        json_response = response.json()
+        assert len(json_response) == 2
+        for res in json_response:
+            assert "filename" in res
+            assert "status" in res
+            assert res["status"] == "success"
 
 
 @pytest.fixture
