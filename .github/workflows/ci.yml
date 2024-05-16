@@ -69,5 +69,3 @@ jobs:
           docker tag my-app:latest "${{ secrets.DOCKER_USERNAME }}/my-app:latest"
           docker push "${{ secrets.DOCKER_USERNAME }}/my-app:latest"
 
-volumes:
-  minio-data:
