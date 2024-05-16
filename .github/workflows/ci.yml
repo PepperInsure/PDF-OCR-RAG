@@ -1,0 +1,59 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      minio:
+        image: minio/minio
+        ports:
+          - 9000:9000
+          - 9001:9001
+        options: --console-address ":9001"
+        env:
+          MINIO_ROOT_USER: minioadmin
+          MINIO_ROOT_PASSWORD: minioadmin
+        volumes:
+          - minio-data:/data
+
+    env:
+      CHROMA_DIR: /app/chroma_db
+      OCR_DIR: /app/OCR_data
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        run: docker-compose up --build -d
+
+      - name: Run tests
+        run: docker-compose run app pytest
+
+      - name: Lint with flake8
+        run: docker-compose run app flake8 .
+
+volumes:
+  minio-data:

@@ -1,5 +1,7 @@
 import sys
 import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from io import BytesIO
 from pathlib import Path
 from unittest.mock import patch, MagicMock, AsyncMock, mock_open
@@ -8,8 +10,6 @@ import pytest
 from fastapi.testclient import TestClient
 from main import app, MinioFunctions, chroma_client, change_extension_to_json, create_collection, embedding_func, \
     OCR_SIM_DIRECTORY
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 client = TestClient(app)
 
@@ -220,4 +220,4 @@ async def test_minio_upload_file_direct(mock_minio_functions):
 def test_minio_check_file_uploaded(mock_minio_functions):
     with patch('main.minioFunctions', mock_minio_functions):
         mock_minio_functions.minioClient.stat_object = MagicMock(return_value=True)
-        assert mock_minio_functions.check_file_uploaded("example.pdf") == True
+        assert mock_minio_functions.check_file_uploaded("example.pdf") == True  # noqa: E712

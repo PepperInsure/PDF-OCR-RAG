@@ -14,8 +14,11 @@ minio_endpoint = os.getenv('MINIO_ENDPOINT', 'localhost:9000')
 minio_access_key = os.getenv('MINIO_ACCESS_KEY', 'minioadmin')
 minio_secret_key = os.getenv('MINIO_SECRET_KEY', 'minioadmin')
 
+
 class MinioFunctions:
     """Class for handling Minio operations."""
+    bucket_name = None
+
     def __init__(self, bucket_name):
         """
         Initialize Minio client and ensure the bucket exists.

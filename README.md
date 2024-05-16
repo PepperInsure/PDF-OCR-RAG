@@ -137,7 +137,8 @@ uvicorn main:app --reload
 
 **Food for thought: Will the language of text matter in attribute extraction?**
 
-- Yes, the language can impact the performance of embedding models and extraction accuracy.
+- The query language can impact the performance of extraction accuracy. 
+- The LLM will try to translate, but there may be differences when using japanese or english.
 - Using multilingual models can improve handling documents in multiple languages. 
 However: An attempt was made to use multilingual sentence transformers like 
 paraphrase-multilingual-MiniLM-L12-v2, but performance ended up being best with multi-qa-MiniLM-L6-cos-v1.

@@ -17,18 +17,18 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 if not openai_api_key:
     raise ValueError("OPENAI_API_KEY not found in environment variables")
 
+
 def setup_chain():
     """
-    Setup the chain for processing OCR data and answering questions.
+    Set up the chain for processing OCR data and answering questions.
 
     Returns:
     Chain: The setup chain for processing OCR data.
     """
     template_str = """Your task is to use the extracted content from OCR data to answer questions about a document.
 Use the following context to answer the questions. Be as detailed as possible, but do not make up any information
-that is not from the context. If you don't know an answer, say you don't know. Give one answer in english and one in japanese.
-{context}
-"""
+that is not from the context. If you don't know an answer, say you don't know. Give one answer in english and one in
+japanese. {context}"""
     system_prompt = SystemMessagePromptTemplate(
         prompt=PromptTemplate(
             input_variables=["context"], template=template_str
@@ -45,8 +45,6 @@ that is not from the context. If you don't know an answer, say you don't know. G
     chat_model = ChatOpenAI(model="gpt-4-turbo", temperature=0, api_key=openai_api_key)
     output_parser = StrOutputParser()
 
-    return (
-            prompt_template
-            | chat_model
-            | output_parser
-    )
+    return (prompt_template |
+            chat_model |
+            output_parser)

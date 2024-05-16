@@ -1,0 +1,4 @@
+[flake8]
+exclude = venv, .venv, .git, __pycache__, build, dist, chroma_db
+max-line-length = 120
+ignore = E402, W504
