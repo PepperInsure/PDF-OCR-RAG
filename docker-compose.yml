@@ -35,3 +35,7 @@ services:
 networks:
   mynetwork:
     driver: bridge
+
+volumes:
+  app-sync:
+    external: true
