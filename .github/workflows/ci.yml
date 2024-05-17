@@ -60,8 +60,13 @@ jobs:
 
       - name: Run tests
         env:
+          CHROMA_DIR: /app/chroma_db
+          OCR_DIR: /app/OCR_data
+          MINIO_ENDPOINT: minio:9000
+          MINIO_ACCESS_KEY: minioadmin
+          MINIO_SECRET_KEY: minioadmin
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: docker-compose run app pytest
+        run: docker-compose run -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} app pytest
 
       - name: Login to Docker Hub
         uses: docker/login-action@v1
