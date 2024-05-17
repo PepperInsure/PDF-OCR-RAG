@@ -17,20 +17,25 @@ uploads/*
 chroma_db/*
 !chroma_db/
 
-# Ignore common temporary files and directories
+#Ignore Python cache files
+.pytest_cache
 *.pyc
 *.pyo
 *.pyd
 __pycache__
-*.swp
-*.swo
-*~
-**/*.md
-.DS_Store
-*.log
-*.tmp
-*.bak
 
 # Ignore files related to version control
 .git
 .gitignore
+
+# Ignore common temporary files and directories
+*.swp
+*.swo
+*~
+**/*.md
+*.log
+*.tmp
+*.bak
+.DS_Store
+.idea
+.vscode
