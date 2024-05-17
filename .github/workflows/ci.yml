@@ -59,6 +59,8 @@ jobs:
         run: docker-compose up --build -d
 
       - name: Run tests
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: docker-compose run app pytest
 
       - name: Login to Docker Hub
