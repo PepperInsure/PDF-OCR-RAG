@@ -66,6 +66,7 @@ jobs:
           MINIO_ACCESS_KEY: minioadmin
           MINIO_SECRET_KEY: minioadmin
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ALLOW_RESET: TRUE
         run: docker-compose run -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} app pytest
 
       - name: Login to Docker Hub
