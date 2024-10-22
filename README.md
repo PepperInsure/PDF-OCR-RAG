@@ -4,6 +4,8 @@
 
 This project implements a Python-based backend API using FastAPI. The API provides endpoints for file uploads, simulates Optical Character Recognition (OCR), and uses Retrieval-Augmented Generation (RAG) for attribute extraction. The project demonstrates how to handle file uploads, perform OCR simulations, and extract attributes using advanced language models.
 
+Note: The OPENAI_API_KEY is removed from Actions secrets until further notice.
+
 ## Endpoints
 ## API Endpoints
 
